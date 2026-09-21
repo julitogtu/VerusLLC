@@ -1,0 +1,189 @@
+<div class="page">
+  <section class="intro">
+    <h1>Companies</h1>
+    <p>
+      Register a company and browse what the API has stored. The name must match the host of the
+      website — the server decides, and explains itself when it says no.
+    </p>
+  </section>
+
+  <div class="layout">
+    <section class="card form-card" aria-labelledby="register-heading">
+      <header class="card-header">
+        <h2 id="register-heading">Register a company</h2>
+      </header>
+
+      <form class="card-body" [formGroup]="createForm" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label for="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            autocomplete="organization"
+            placeholder="Microsoft"
+            [attr.aria-invalid]="name.touched && name.invalid ? 'true' : null"
+            aria-describedby="name-help name-errors"
+          />
+          <p id="name-help" class="help">At least {{ nameMinLength }} characters.</p>
+
+          <div id="name-errors" class="errors" role="alert">
+            @if (name.touched && name.hasError('required')) {
+              <p>Name is required.</p>
+            }
+            @if (name.touched && name.hasError('minlength')) {
+              <p>Name must be at least {{ nameMinLength }} characters.</p>
+            }
+            @for (message of fieldErrorsFor('name'); track message) {
+              <p>{{ message }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="websiteUrl">Website URL</label>
+          <input
+            id="websiteUrl"
+            type="url"
+            formControlName="websiteUrl"
+            placeholder="https://www.microsoft.com"
+            autocomplete="url"
+            [attr.aria-invalid]="websiteUrl.touched && websiteUrl.invalid ? 'true' : null"
+            aria-describedby="url-help url-errors"
+          />
+          <p id="url-help" class="help">Absolute http or https URL.</p>
+
+          <div id="url-errors" class="errors" role="alert">
+            @if (websiteUrl.touched && websiteUrl.hasError('required')) {
+              <p>Website URL is required.</p>
+            }
+            @if (websiteUrl.touched && websiteUrl.hasError('webUrl')) {
+              <p>Enter an absolute URL such as https://www.microsoft.com.</p>
+            }
+            @for (message of fieldErrorsFor('websiteUrl'); track message) {
+              <p>{{ message }}</p>
+            }
+          </div>
+        </div>
+
+        <button class="primary" type="submit" [disabled]="submitting()">
+          @if (submitting()) {
+            <span class="spinner" aria-hidden="true"></span> Saving…
+          } @else {
+            Register company
+          }
+        </button>
+
+        @if (successMessage(); as message) {
+          <p class="banner success" role="status">{{ message }}</p>
+        }
+
+        @if (createError(); as failure) {
+          <div class="banner failure" role="alert">
+            <p class="banner-title">{{ failure.message }}</p>
+            @if (failure.correlationId) {
+              <p class="banner-meta">Correlation id: {{ failure.correlationId }}</p>
+            }
+          </div>
+        }
+
+        @if (hiddenByFilters()) {
+          <div class="banner notice" role="status">
+            <p class="banner-title">Active filters may hide the company you just registered.</p>
+            <button type="button" class="link" (click)="clearFilters()">Clear filters</button>
+          </div>
+        }
+      </form>
+    </section>
+
+    <section class="card list-card" aria-labelledby="list-heading">
+      <header class="card-header list-header">
+        <h2 id="list-heading">Registered</h2>
+        @if (listState() === 'ready') {
+          <span class="count">{{ companies().length }}</span>
+        }
+      </header>
+
+      <form class="filters" [formGroup]="filterForm" (ngSubmit)="applyFilters()" novalidate>
+        <div class="field">
+          <label for="filter-name">Name contains</label>
+          <input id="filter-name" type="search" formControlName="name" placeholder="micro" />
+        </div>
+
+        <div class="field">
+          <label for="filter-domain">Exact domain</label>
+          <input
+            id="filter-domain"
+            type="search"
+            formControlName="domain"
+            placeholder="microsoft.com"
+          />
+        </div>
+
+        <div class="field">
+          <label for="filter-search">Search</label>
+          <input id="filter-search" type="search" formControlName="search" placeholder="micro" />
+        </div>
+
+        <div class="filter-actions">
+          <button class="primary" type="submit">Search</button>
+          <button type="button" (click)="clearFilters()">Clear</button>
+          @if (hasActiveFilters()) {
+            <span class="filter-flag">Filtered · ranked by the API</span>
+          }
+        </div>
+      </form>
+
+      <div class="card-body list-body">
+        @switch (listState()) {
+          @case ('loading') {
+            <div class="state" role="status">
+              <span class="spinner dark" aria-hidden="true"></span>
+              <p>Loading companies…</p>
+            </div>
+          }
+          @case ('error') {
+            <div class="state state-error" role="alert">
+              <p class="banner-title">{{ listError()?.message }}</p>
+              <p class="banner-meta">The API may be down or still starting.</p>
+              <button type="button" (click)="load()">Try again</button>
+            </div>
+          }
+          @case ('empty') {
+            <div class="state" role="status">
+              @if (hasActiveFilters()) {
+                <p class="state-title">No matches</p>
+                <p>No company matches these filters.</p>
+                <button type="button" (click)="clearFilters()">Clear filters</button>
+              } @else {
+                <p class="state-title">Nothing registered yet</p>
+                <p>Add the first company with the form.</p>
+              }
+            </div>
+          }
+          @default {
+            <ul class="companies">
+              @for (company of companies(); track company.id) {
+                <li class="company">
+                  <span class="avatar" aria-hidden="true">{{ initialsOf(company.name) }}</span>
+                  <span class="company-text">
+                    <span class="company-name">{{ company.name }}</span>
+                    <a
+                      class="company-host"
+                      [href]="company.websiteUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {{ hostOf(company.websiteUrl) }}
+                      <span class="visually-hidden">(opens in a new tab)</span>
+                    </a>
+                  </span>
+                </li>
+              }
+            </ul>
+          }
+        }
+      </div>
+    </section>
+  </div>
+</div>

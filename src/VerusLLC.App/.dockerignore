@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.angular/
+.git/
+.vscode/
+**/.env
+**/.env.*
+!**/.env.example
+*.log

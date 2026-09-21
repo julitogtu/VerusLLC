@@ -1,0 +1,377 @@
+.page {
+  padding-top: 2rem;
+}
+
+.intro {
+  margin-bottom: 1.5rem;
+}
+
+.intro h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+}
+
+.intro p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 44rem;
+}
+
+.layout {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (max-width: 56rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.count {
+  min-width: 1.75rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--brand-tint);
+  color: var(--brand-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input::placeholder {
+  color: #9aa7b6;
+}
+
+input:hover {
+  border-color: #a8b5c4;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-tint);
+}
+
+input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+input:disabled {
+  background: var(--surface-alt);
+  color: var(--muted);
+}
+
+.help {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.errors p {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font: inherit;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  border-color: #98a6b6;
+  background: var(--surface-alt);
+}
+
+button.primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+button.primary:hover:not(:disabled) {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+button.link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--brand-dark);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+form > button.primary {
+  width: 100%;
+}
+
+.spinner {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner.dark {
+  border-color: var(--border-strong);
+  border-top-color: var(--brand);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}
+
+.banner {
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  font-size: 0.88rem;
+}
+
+.banner-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.banner-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.banner.success {
+  background: var(--success-tint);
+  border-color: #b7e0cb;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.banner.failure {
+  background: var(--danger-tint);
+  border-color: #f0c2c4;
+  color: var(--danger);
+}
+
+.banner.notice {
+  background: var(--warn-tint);
+  border-color: #eed6ab;
+  color: var(--warn);
+}
+
+.banner.notice .link {
+  color: var(--warn);
+  margin-top: 0.3rem;
+}
+
+.filters {
+  display: grid;
+  gap: 0.75rem 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: #fbfcfe;
+}
+
+.filters .field {
+  margin-bottom: 0;
+}
+
+.filter-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.filter-flag {
+  font-size: 0.78rem;
+  color: var(--brand-dark);
+  background: var(--brand-tint);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+@media (max-width: 42rem) {
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.list-body {
+  padding: 0.5rem 0.75rem;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2.75rem 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.state p {
+  margin: 0;
+}
+
+.state-title {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.state button {
+  margin-top: 0.6rem;
+}
+
+.state-error {
+  color: var(--danger);
+}
+
+.companies {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.company {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border-bottom: 1px solid #eef2f6;
+}
+
+.company:last-child {
+  border-bottom: none;
+}
+
+.company:hover {
+  background: var(--surface-alt);
+}
+
+.avatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 10px;
+  background: var(--brand-tint);
+  color: var(--brand-dark);
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.company-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.company-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.company-host {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.company-host:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}

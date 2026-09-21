@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="compose.yaml" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/VerusLLC.Api/VerusLLC.Api.csproj" />
+    <Project Path="src/VerusLLC.Application/VerusLLC.Application.csproj" />
+    <Project Path="src/VerusLLC.Domain/VerusLLC.Domain.csproj" />
+    <Project Path="src/VerusLLC.Persistence/VerusLLC.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VerusLLC.Tests/VerusLLC.Tests.csproj" Id="221a496a-4f63-45de-a785-3483a86ff23d" />
+  </Folder>
+</Solution>

@@ -1,0 +1,74 @@
+:root {
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --surface-alt: #f2f5f9;
+  --border: #dfe5ec;
+  --border-strong: #c4cedb;
+  --text: #16212e;
+  --muted: #5b6b7d;
+  --brand: #2f5fd0;
+  --brand-dark: #24499f;
+  --brand-tint: #eaf0fd;
+  --danger: #c2333a;
+  --danger-tint: #fdf0f0;
+  --success: #1f7a52;
+  --success-tint: #eaf7f1;
+  --warn: #9a5b12;
+  --warn-tint: #fdf4e7;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(16, 33, 54, 0.06), 0 8px 24px rgba(16, 33, 54, 0.06);
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--brand);
+}
+
+a:hover {
+  color: var(--brand-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
