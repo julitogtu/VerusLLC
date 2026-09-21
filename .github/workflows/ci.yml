@@ -1,0 +1,142 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  backend:
+    name: Backend (.NET)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore VerusLLC.slnx
+
+      - name: Build
+        run: dotnet build VerusLLC.slnx --configuration Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test VerusLLC.slnx --configuration Release --no-build
+
+  frontend:
+    name: Frontend (Angular)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/VerusLLC.App
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          cache: npm
+          cache-dependency-path: src/VerusLLC.App/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npx ng test --watch=false
+
+      - name: Build
+        run: npm run build
+
+  docker:
+    name: Docker Compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate compose file
+        run: docker compose config
+
+      - name: Build images
+        run: docker compose build
+
+      - name: Start the stack
+        run: docker compose up -d --wait --wait-timeout 180
+
+      - name: Show service status
+        run: docker compose ps
+
+      - name: Smoke test the API and the proxy
+        run: |
+          set -euo pipefail
+
+          echo "health"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:5000/health)" = "200"
+
+          echo "seeded list through the frontend proxy"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4200/api/companies)" = "200"
+          test "$(curl -s http://localhost:4200/api/companies | jq 'length')" -gt 0
+
+          echo "create returns 201 with a relative Location"
+          location=$(curl -s -D - -o /dev/null \
+            -X POST http://localhost:4200/api/companies \
+            -H 'Content-Type: application/json' \
+            -d '{"name":"Stripe","websiteUrl":"https://stripe.com"}' \
+            | tr -d '\r' | awk 'tolower($1)=="location:" {print $2}')
+          echo "Location: ${location}"
+          case "${location}" in
+            /api/*) ;;
+            *) echo "Location must be relative, got '${location}'"; exit 1 ;;
+          esac
+          test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:4200${location}")" = "200"
+
+          echo "invalid relationship is rejected as JSON"
+          test "$(curl -s -o /dev/null -w '%{http_code}' \
+            -X POST http://localhost:4200/api/companies \
+            -H 'Content-Type: application/json' \
+            -d '{"name":"Microsoft","websiteUrl":"https://google.com"}')" = "400"
+
+          echo "unknown id is a JSON 404, not the SPA fallback"
+          test "$(curl -s -o /dev/null -w '%{http_code}' \
+            http://localhost:4200/api/companies/01a0c408-0000-7000-8000-000000000000)" = "404"
+          curl -s -o /dev/null -w '%{content_type}' \
+            http://localhost:4200/api/companies/01a0c408-0000-7000-8000-000000000000 \
+            | grep -q 'application/problem+json'
+
+          echo "an empty search is 200 []"
+          test "$(curl -s 'http://localhost:4200/api/companies?search=zzzznothing')" = "[]"
+
+          echo "an Angular deep link still serves the SPA"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4200/companies)" = "200"
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Tear down
+        if: always()
+        run: docker compose down --remove-orphans

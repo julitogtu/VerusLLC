@@ -270,6 +270,27 @@ npm run build
 `global.json` opts `dotnet test` into the Microsoft.Testing.Platform runner. xUnit v3 requires it on
 the .NET 10 SDK — without that file `dotnet test` refuses to run at all. Don't delete it.
 
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and pull request to `main`, and can be started manually
+from the Actions tab. Three jobs run in parallel:
+
+| Job | What it does |
+| --- | --- |
+| **Backend (.NET)** | `dotnet restore`, `build --configuration Release -warnaserror`, `dotnet test` |
+| **Frontend (Angular)** | `npm ci`, `ng test --watch=false`, `npm run build` |
+| **Docker Compose** | `docker compose config`, builds both images, starts the stack and smoke-tests it |
+
+The backend job treats **any warning as an error**, so the 0-warning baseline cannot silently
+regress. NuGet and npm caches are keyed off the lockfiles.
+
+The Docker job is the end-to-end gate. It starts the real stack with `docker compose up -d --wait`
+and then checks, through the frontend proxy exactly as a browser would: `/health` answers, the seeded
+list is non-empty, a create returns `201` with a **relative** `Location` that resolves, an invalid
+name/host pair returns `400`, an unknown id returns a JSON `404` rather than the SPA fallback, an
+empty search returns `[]`, and an Angular deep link still serves the app. On failure it dumps
+`docker compose logs`, and it always tears the stack down.
+
 ## API reference
 
 Base path `/api/companies`. Examples below use the HTTP profile (`http://localhost:5152`); through the
